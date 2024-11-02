@@ -26,7 +26,7 @@ def get_animals_data() -> dict[str, dict[str, str]]:
             if "type" in animal["characteristics"]:
                 animal_data["Type"] = animal["characteristics"]["type"]
         if "locations" in animal:
-            animal_data["Location"] = ", ".join(animal["locations"])
+            animal_data["Location"] = " and ".join(animal["locations"])
         animals_data[animal["name"]] = animal_data
     return animals_data
 
@@ -34,11 +34,12 @@ def get_animals_data() -> dict[str, dict[str, str]]:
 def build_animal_info_html(animal_name: str, animal_data: dict[str, str]) -> str:
     """ Returns the HTML code for the information of an animal """
     html_code = '<li class="cards__item">\n'
-    html_code += f'Name: {animal_name}<br/>\n'
+    html_code += f'<div class="card__title">{animal_name}</div>\n'
+    html_code += '<p class="card__text">\n'
     for key, value in animal_data.items():
-        html_code += f'{key}: {value}<br/>\n'
+        html_code += f'<strong>{key}:</strong> {value}<br/>\n'
     html_code = html_code[:-6]
-    html_code += '\n</li>\n'
+    html_code += '\n</p>\n</li>\n'
     return html_code
 
 
