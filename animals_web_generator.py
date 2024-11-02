@@ -13,28 +13,43 @@ def load_html_template(file_path: str) -> str:
         return handle.read()
 
 
-def get_animals_data_string() -> str:
-    """ Returns a string of animals data """
-    animals_data = load_data("animals_data.json")
+def get_animals_data() -> dict[str, dict[str, str]]:
+    """ Returns a dictionary with the relevant data for each animal """
+    full_animals_data = load_data("animals_data.json")
 
-    animals_data_string = ""
-    for animal in animals_data:
-        animals_data_string += f"Name: {animal['name']}\n"
+    animals_data = {}
+    for animal in full_animals_data:
+        animal_data = {}
         if "characteristics" in animal:
             if "diet" in animal["characteristics"]:
-                animals_data_string += f"Diet: {animal['characteristics']['diet']}\n"
+                animal_data["Diet"] = animal["characteristics"]["diet"]
             if "type" in animal["characteristics"]:
-                animals_data_string += f"Type: {animal['characteristics']['type']}\n"
+                animal_data["Type"] = animal["characteristics"]["type"]
         if "locations" in animal:
-            animals_data_string += f"Locations: {', '.join(animal['locations'])}\n"
-        animals_data_string += "\n"
-    print(animals_data_string)
-    return animals_data_string
+            animal_data["Location"] = ", ".join(animal["locations"])
+        animals_data[animal["name"]] = animal_data
+    return animals_data
+
+
+def build_animal_info_html(animal_name: str, animal_data: dict[str, str]) -> str:
+    """ Returns the HTML code for the information of an animal """
+    html_code = '<li class="cards__item">\n'
+    html_code += f'Name: {animal_name}<br/>\n'
+    for key, value in animal_data.items():
+        html_code += f'{key}: {value}<br/>\n'
+    html_code = html_code[:-6]
+    html_code += '\n</li>\n'
+    return html_code
 
 
 if __name__ == "__main__":
     new_html = load_html_template("animals_template.html")
-    animals_data = get_animals_data_string()
-    new_html = new_html.replace("__REPLACE_ANIMALS_INFO__", animals_data)
+    animals_data = get_animals_data()
+
+    html_animals_data = ""
+    for animal_name, animal_data in animals_data.items():
+        html_animals_data += build_animal_info_html(animal_name, animal_data)
+
+    new_html = new_html.replace("__REPLACE_ANIMALS_INFO__", html_animals_data)
     with open("animals.html", "w") as handle:
         handle.write(new_html)
