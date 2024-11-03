@@ -13,12 +13,20 @@ def load_html_template(file_path: str) -> str:
         return handle.read()
 
 
-def get_animals_data() -> dict[str, dict[str, str]]:
+def get_animals_data(skin_type: str) -> dict[str, dict[str, str]]:
     """ Returns a dictionary with the relevant data for each animal """
     full_animals_data = load_data("animals_data.json")
 
     animals_data = {}
     for animal in full_animals_data:
+        try:
+            animal_skin_type = animal["characteristics"]["skin_type"]
+        except KeyError:
+            animal_skin_type = "not specified"
+
+        if skin_type != animal_skin_type and skin_type != "All":
+            continue
+
         animal_data = {}
         animal_data["taxonomy"] = " >> ".join(animal["taxonomy"].values())
         if "characteristics" in animal:
@@ -47,9 +55,38 @@ def build_animal_info_html(animal_name: str, animal_data: dict[str, str]) -> str
     return html_code
 
 
+def get_possible_skin_types() -> list[str]:
+    """ Returns the possible skin types of the animals """
+    full_animals_data = load_data("animals_data.json")
+    skin_types = set()
+    for animal in full_animals_data:
+        if "characteristics" in animal and "skin_type" in animal["characteristics"]:
+            skin_types.add(animal["characteristics"]["skin_type"])
+    return list(skin_types)
+
+
+def get_user_input() -> str:
+    """ Asks the user for the skin type of the animals """
+    skin_types = get_possible_skin_types()
+    print("Possible skin types:")
+    print("All")
+    for skin_type in skin_types:
+        print(skin_type)
+    while True:
+        try:
+            skin_type = input("Enter the skin type of the animals: ")
+            if skin_type in skin_types or skin_type == "All":
+                return skin_type
+            else:
+                print("Invalid skin type. Please try again.")
+        except ValueError:
+            print("Invalid input. Please try again.")
+
+
 if __name__ == "__main__":
     new_html = load_html_template("animals_template.html")
-    animals_data = get_animals_data()
+    skin_type = get_user_input()
+    animals_data = get_animals_data(skin_type)
 
     html_animals_data = ""
     for animal_name, animal_data in animals_data.items():
