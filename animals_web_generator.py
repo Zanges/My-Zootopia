@@ -39,12 +39,11 @@ def build_animal_info_html(animal_name: str, animal_data: dict[str, str]) -> str
     html_code = '<li class="cards__item">\n'
     html_code += f'<div class="card__title">{animal_name}</div>\n'
     html_code += f'<p class="card__taxonomy">{animal_data["taxonomy"]}</p>\n'
-    html_code += '<p class="card__text">\n'
+    html_code += '<ul class="card__info">\n' # cant wrap an ul in a p tag. mistake in the guide
     for key, value in animal_data.items():
         if key != "taxonomy":
-            html_code += f'<strong>{key}:</strong> {value}<br/>\n'
-    html_code = html_code[:-6]
-    html_code += '\n</p>\n</li>\n'
+            html_code += f'<li><strong>{key}:</strong> {value}</li>\n'
+    html_code += '</ul>\n</li>\n'
     return html_code
 
 
